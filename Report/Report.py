@@ -87,7 +87,7 @@ class Report:
         enum = ini.EnumSection("Reports")
         length = len(enum)
         lastreportnumber = 0
-        for number in xrange(0, length):
+        for number in xrange(0, length + 1):
             if number == length:
                 lastreportnumber = enum[number]
         ini.AddSetting("Reports", str(lastreportnumber + 1), "| Reporter: " + Reporter.Name+" -| Reported:  " + ReportedName + " -| Reason: " + Text)
@@ -99,14 +99,14 @@ class Report:
         length = len(enum)
         if cmd == "report":
             if len(args) == 0:
-                Reporter.MessageFrom("Report", green + "Get420Reported++ 1.0 Made by Gartand")
+                Reporter.MessageFrom("Report", green + "Get420Reported++ " + __version__ + " Made by " + __author__)
                 Reporter.MessageFrom("Report", "/report Name")
                 Reporter.MessageFrom("Report", "/report list")
                 Reporter.MessageFrom("Report", "/report delete")
                 Reporter.MessageFrom("Report", "/report deleteall")
             else:
                 if args[0] == "help":
-                    Reporter.MessageFrom("Report", green + "Get420Reported++ 1.0 Made by Gartand")
+                    Reporter.MessageFrom("Report", green + "Get420Reported++ " + __version__ + " Made by " + __author__)
                     Reporter.MessageFrom("Report", "/report Name")
                     Reporter.MessageFrom("Report", "/report list")
                     Reporter.MessageFrom("Report", "/report delete")
@@ -169,7 +169,7 @@ class Report:
                     DataStore.Add("Report", Reporter.SteamID + "name", Reported.Name)
 
     def On_Chat(self, Reporter, ChatMessage):
-        message = str(ChatMessage.origText)
+        message = ChatMessage.ToString()
         ChatMessage.NewText = ""
         if DataStore.ContainsKey("Report", Reporter.SteamID):
             if len(message) > 47:
