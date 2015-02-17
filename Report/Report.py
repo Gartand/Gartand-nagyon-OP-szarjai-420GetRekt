@@ -134,7 +134,7 @@ class Report:
                         return
                     Reason = ini.GetSetting("Reports", id)
                     Reporter.MessageFrom("Report", red + "You are viewing: " + id)
-                    Reporter.MessageFrom("Report", green + "Case: " + tea+ Reason)
+                    Reporter.MessageFrom("Report", green + "Case: " + teal + Reason)
                 elif args[0] == "delete":
                     if not Reporter.Admin and not self.isMod(Reporter.SteamID):
                         return
@@ -169,9 +169,10 @@ class Report:
                     DataStore.Add("Report", Reporter.SteamID + "name", Reported.Name)
 
     def On_Chat(self, Reporter, ChatMessage):
-        ChatMessage = str(ChatMessage)
+        message = str(ChatMessage.origText)
+        ChatMessage.NewText = ""
         if DataStore.ContainsKey("Report", Reporter.SteamID):
-            if len(ChatMessage) > 47:
+            if len(message) > 47:
                 Reporter.MessageFrom("Report", red + "Too long reason. Write It shorter.")
                 return
             SteamID = DataStore.Get("Report", Reporter.SteamID)
@@ -182,7 +183,7 @@ class Report:
                     player.MessageFrom("Report", red + "New report submitted!")
                     player.MessageFrom("Report", red + "Check it with the /report view command.")
             DataStore.Remove("Report", Reporter.SteamID)
-            Plugin.Log("ReportLogs", "Reporter: " + Reporter.Name + " | " + Reporter.SteamID + " | Reported: " + Name + " | " + SteamID + " |  Reason: " + ChatMessage)
-            self.SaveReportToIni(Reporter, Name, ChatMessage)
+            Plugin.Log("ReportLogs", "Reporter: " + Reporter.Name + " | " + Reporter.SteamID + " | Reported: " + Name +
+                       " | " + SteamID + " |  Reason: " + message)
+            self.SaveReportToIni(Reporter, Name, message)
             Reporter.MessageFrom("Report", red + "Report submitted.")
-            ChatMessage.NewText = ""
