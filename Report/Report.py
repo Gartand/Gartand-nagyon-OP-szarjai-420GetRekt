@@ -1,13 +1,17 @@
 # coding=utf-8
-__author__ = 'Garrus'
-__version__ = '1.0'
+__author__ = 'Gartand'
+__version__ = '1.1'
 
 
 import clr
 clr.AddReferenceByPartialName("Fougerite")
 import Fougerite
 
+blue = "[color #0099FF]"
 red = "[color #FF0000]"
+pink = "[color #CC66FF]"
+teal = "[color #00FFFF]"
+green = "[color #009900]"
 
 class Report:
 
@@ -95,23 +99,27 @@ class Report:
         length = len(enum)
         if cmd == "report":
             if len(args) == 0:
-                Reporter.MessageFrom("Report", "Get420Reported++ 1.0 Made by Gartand")
+                Reporter.MessageFrom("Report", green + "Get420Reported++ 1.0 Made by Gartand")
                 Reporter.MessageFrom("Report", "/report Name")
                 Reporter.MessageFrom("Report", "/report list")
                 Reporter.MessageFrom("Report", "/report delete")
                 Reporter.MessageFrom("Report", "/report deleteall")
             else:
                 if args[0] == "help":
-                    Reporter.MessageFrom("Report", "Get420Reported++ 1.0 Made by Gartand")
+                    Reporter.MessageFrom("Report", green + "Get420Reported++ 1.0 Made by Gartand")
                     Reporter.MessageFrom("Report", "/report Name")
                     Reporter.MessageFrom("Report", "/report list")
                     Reporter.MessageFrom("Report", "/report delete")
                     Reporter.MessageFrom("Report", "/report deleteall")
                 elif args[0] == "list":
-                    Reporter.MessageFrom("Report", "There are (" + str(length) + ") reports atm.")
+                    if not Reporter.Admin and not self.isMod(Reporter.SteamID):
+                        return
+                    Reporter.MessageFrom("Report", green + "There are (" + teal + str(length) + green + ") reports atm.")
                     for key in enum:
                         Reporter.MessageFrom("Report", "ID - " + key)
                 elif args[0] == "view":
+                    if not Reporter.Admin and not self.isMod(Reporter.SteamID):
+                        return
                     # cmd args[0] args[1]
                     # /report view id
                     if len(args) == 1:
@@ -125,9 +133,11 @@ class Report:
                         Reporter.MessageFrom("Report", red + "This report doesn't exist!")
                         return
                     Reason = ini.GetSetting("Reports", id)
-                    Reporter.MessageFrom("Report", "You are viewing: " + id)
-                    Reporter.MessageFrom("Report", "Case: " + Reason)
+                    Reporter.MessageFrom("Report", red + "You are viewing: " + id)
+                    Reporter.MessageFrom("Report", green + "Case: " + tea+ Reason)
                 elif args[0] == "delete":
+                    if not Reporter.Admin and not self.isMod(Reporter.SteamID):
+                        return
                     if len(args) == 1:
                         Reporter.MessageFrom("Report", red + "Usage: /report delete id")
                         return
@@ -139,6 +149,8 @@ class Report:
                     Reporter.MessageFrom("Report", red + "Case:" + id + " deleted.")
                     ini.Save()
                 elif args[0] == "deleteall":
+                    if not Reporter.Admin and not self.isMod(Reporter.SteamID):
+                        return
                     for key in enum:
                         ini.DeleteSetting("Reports", key)
                     Reporter.MessageFrom("Report", red + "All cases deleted.")
@@ -150,7 +162,7 @@ class Report:
                     if DataStore.ContainsKey("Report", Reporter.SteamID):
                         Reporter.MessageFrom("Report", red + "Write the reason in the chat without the command.")
                         return
-                    Reporter.MessageFrom("Report", "Write the reason in the chat.")
+                    Reporter.MessageFrom("Report", red + "Write the reason in the chat.")
                     # Tábla, Kulcs, Érték
                     # Tábla, Reportoló játékos id, Reportolt játékos id-t
                     DataStore.Add("Report", Reporter.SteamID, Reported.SteamID)
@@ -172,5 +184,5 @@ class Report:
             DataStore.Remove("Report", Reporter.SteamID)
             Plugin.Log("ReportLogs", "Reporter: " + Reporter.Name + " | " + Reporter.SteamID + " | Reported: " + Name + " | " + SteamID + " |  Reason: " + ChatMessage)
             self.SaveReportToIni(Reporter, Name, ChatMessage)
-            Reporter.MessageFrom("Report", "Report submitted.")
+            Reporter.MessageFrom("Report", red + "Report submitted.")
             ChatMessage.NewText = ""
