@@ -169,9 +169,9 @@ class Report:
                     DataStore.Add("Report", Reporter.SteamID + "name", Reported.Name)
 
     def On_Chat(self, Reporter, ChatMessage):
-        message = ChatMessage.ToString()
-        ChatMessage.NewText = ""
         if DataStore.ContainsKey("Report", Reporter.SteamID):
+            message = ChatMessage.ToString()
+            ChatMessage.NewText = ""
             if len(message) > 47:
                 Reporter.MessageFrom("Report", red + "Too long reason. Write It shorter.")
                 return
