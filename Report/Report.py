@@ -94,7 +94,13 @@ class Report:
         enum = ini.EnumSection("Reports")
         length = len(enum)
         if cmd == "report":
-            if len(args) > 0:
+            if len(args) == 0:
+                Reporter.MessageFrom("Report", "Get420Reported++ 1.0 Made by Gartand")
+                Reporter.MessageFrom("Report", "/report Name")
+                Reporter.MessageFrom("Report", "/report list")
+                Reporter.MessageFrom("Report", "/report delete")
+                Reporter.MessageFrom("Report", "/report deleteall")
+            else:
                 if args[0] == "help":
                     Reporter.MessageFrom("Report", "Get420Reported++ 1.0 Made by Gartand")
                     Reporter.MessageFrom("Report", "/report Name")
@@ -137,18 +143,18 @@ class Report:
                         ini.DeleteSetting("Reports", key)
                     Reporter.MessageFrom("Report", red + "All cases deleted.")
                     ini.Save()
-            else:
-                Reported = self.CheckV(Reporter, args)
-                if Reported is None:
-                    return
-                if DataStore.ContainsKey("Report", Reporter.SteamID):
-                    Reporter.MessageFrom("Report", red + "Write the reason in the chat without the command.")
-                    return
-                Reporter.MessageFrom("Report", "Write the reason in the chat.")
-                # Tábla, Kulcs, Érték
-                # Tábla, Reportoló játékos id, Reportolt játékos id-t
-                DataStore.Add("Report", Reporter.SteamID, Reported.SteamID)
-                DataStore.Add("Report", Reporter.SteamID + "name", Reported.Name)
+                else:
+                    Reported = self.CheckV(Reporter, args)
+                    if Reported is None:
+                        return
+                    if DataStore.ContainsKey("Report", Reporter.SteamID):
+                        Reporter.MessageFrom("Report", red + "Write the reason in the chat without the command.")
+                        return
+                    Reporter.MessageFrom("Report", "Write the reason in the chat.")
+                    # Tábla, Kulcs, Érték
+                    # Tábla, Reportoló játékos id, Reportolt játékos id-t
+                    DataStore.Add("Report", Reporter.SteamID, Reported.SteamID)
+                    DataStore.Add("Report", Reporter.SteamID + "name", Reported.Name)
 
     def On_Chat(self, Reporter, ChatMessage):
         ChatMessage = str(ChatMessage)
