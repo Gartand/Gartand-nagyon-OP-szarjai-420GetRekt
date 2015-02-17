@@ -157,9 +157,8 @@ class Report:
             #Keresett Jatekos
             for player in Server.Players:
                 if player.Admin or self.isMod(player.SteamID):
-                    # BizonyosJatekos.Uzenet
-                    # todo: New report blanlanlanla
-                    player.MessageFrom("Report", ChatMessage)
+                    player.MessageFrom("Report", red + "New report submitted!")
+                    player.MessageFrom("Report", red + "Check it with the /report view command.")
             DataStore.Remove("Report", Reporter.SteamID)
             Plugin.Log("ReportLogs", "Reporter: " + Reporter.Name + " | " + Reporter.SteamID + " | Reported: " + Name + " | " + SteamID + " |  Reason: " + ChatMessage)
             self.SaveReportToIni(Reporter, Name, ChatMessage)
