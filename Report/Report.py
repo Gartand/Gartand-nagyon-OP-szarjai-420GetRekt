@@ -94,45 +94,49 @@ class Report:
         enum = ini.EnumSection("Reports")
         length = len(enum)
         if cmd == "report":
-            if args[0] == "help":
-                Reporter.MessageFrom("Report", "Report-- 1.0 Made by Gartand")
-                Reporter.MessageFrom("Report", "/report Name")
-                Reporter.MessageFrom("Report", "/report list")
-                Reporter.MessageFrom("Report", "/report delete")
-                Reporter.MessageFrom("Report", "/report deleteall")
-            elif args[0] == "list":
-                Reporter.MessageFrom("Report", "There are (" + str(length) + ") reports atm.")
-                for key in enum:
-                    Reporter.MessageFrom("Report", "ID - " + key)
-            elif args[0] == "view":
-                # cmd args[0] args[1]
-                # /report view id
-                if len(args) == 1:
-                    Reporter.MessageFrom("Report", red + "Usage: /report view id")
-                    return
-                id = args[1]
-                if not id.isdigit():
-                    Reporter.MessageFrom("Report", red + "ID must be a number.")
-                    return
-                Reason = ini.GetSetting("Reports", id)
-                Reporter.MessageFrom("Report", "You are viewing: " + id)
-                Reporter.MessageFrom("Report", "Case: " + Reason)
-            elif args[0] == "delete":
-                if len(args) == 1:
-                    Reporter.MessageFrom("Report", red + "Usage: /report delete id")
-                    return
-                id = args[1]
-                if not id.isdigit():
-                    Reporter.MessageFrom("Report", red + "ID must be a number.")
-                    return
-                ini.DeleteSetting("Reports", id)
-                Reporter.MessageFrom("Report", red + "Case:" + id + " deleted.")
-                ini.Save()
-            elif args[0] == "deleteall":
-                for key in enum:
-                    ini.DeleteSetting("Reports", key)
-                Reporter.MessageFrom("Report", red + "All cases deleted.")
-                ini.Save()
+            if len(args) > 0:
+                if args[0] == "help":
+                    Reporter.MessageFrom("Report", "Get420Reported++ 1.0 Made by Gartand")
+                    Reporter.MessageFrom("Report", "/report Name")
+                    Reporter.MessageFrom("Report", "/report list")
+                    Reporter.MessageFrom("Report", "/report delete")
+                    Reporter.MessageFrom("Report", "/report deleteall")
+                elif args[0] == "list":
+                    Reporter.MessageFrom("Report", "There are (" + str(length) + ") reports atm.")
+                    for key in enum:
+                        Reporter.MessageFrom("Report", "ID - " + key)
+                elif args[0] == "view":
+                    # cmd args[0] args[1]
+                    # /report view id
+                    if len(args) == 1:
+                        Reporter.MessageFrom("Report", red + "Usage: /report view id")
+                        return
+                    id = args[1]
+                    if not id.isdigit():
+                        Reporter.MessageFrom("Report", red + "ID must be a number.")
+                        return
+                    if not ini.GetSetting("Reports", id) and ini.GetSetting("Reports", id) is None:
+                        Reporter.MessageFrom("Report", red + "This report doesn't exist!")
+                        return
+                    Reason = ini.GetSetting("Reports", id)
+                    Reporter.MessageFrom("Report", "You are viewing: " + id)
+                    Reporter.MessageFrom("Report", "Case: " + Reason)
+                elif args[0] == "delete":
+                    if len(args) == 1:
+                        Reporter.MessageFrom("Report", red + "Usage: /report delete id")
+                        return
+                    id = args[1]
+                    if not id.isdigit():
+                        Reporter.MessageFrom("Report", red + "ID must be a number.")
+                        return
+                    ini.DeleteSetting("Reports", id)
+                    Reporter.MessageFrom("Report", red + "Case:" + id + " deleted.")
+                    ini.Save()
+                elif args[0] == "deleteall":
+                    for key in enum:
+                        ini.DeleteSetting("Reports", key)
+                    Reporter.MessageFrom("Report", red + "All cases deleted.")
+                    ini.Save()
             else:
                 Reported = self.CheckV(Reporter, args)
                 if Reported is None:
