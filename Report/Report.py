@@ -1,6 +1,6 @@
 # coding=utf-8
 __author__ = 'Gartand'
-__version__ = '1.1'
+__version__ = '1.2'
 
 
 import clr
@@ -32,6 +32,20 @@ class Report:
             ini = Plugin.CreateIni("ReportedPlayers")
             ini.Save()
         return Plugin.GetIni("ReportedPlayers")
+
+    def GetQuoted(self, array, Reporter):
+        text = str.join(" ", array)
+        if not '"' in text:
+            Reporter.MessageFrom('Report', 'Usage: /report "PlayerName" "message"')
+            Reporter.MessageFrom('Report', 'Quote signs (") are required.')
+            return False
+        groups = text.split('"')
+        n = len(groups)
+        list = []
+        for x in xrange(0, n):
+            if x % 2 != 0:
+                list.append(str(groups[x]))
+        return list
 
     """
         CheckV method based on Spock's method.
@@ -86,11 +100,11 @@ class Report:
         ini = self.IniFile()
         enum = ini.EnumSection("Reports")
         length = len(enum)
-        lastreportnumber = 0
-        for number in xrange(0, length + 1):
-            if number == length:
-                lastreportnumber = enum[number]
-        ini.AddSetting("Reports", str(lastreportnumber + 1), "| Reporter: " + Reporter.Name+" -| Reported:  " + ReportedName + " -| Reason: " + Text)
+        if length == 0:
+            lastreportnumber = 0
+        else:
+            lastreportnumber = int(enum[length - 1])
+        ini.AddSetting("Reports", str(lastreportnumber + 1), "Reporter: " + Reporter.Name + " | Reported:  " + ReportedName + "  | Reason: " + Text)
         ini.Save()
 
     def On_Command(self, Reporter, cmd, args):
@@ -100,23 +114,27 @@ class Report:
         if cmd == "report":
             if len(args) == 0:
                 Reporter.MessageFrom("Report", green + "Get420Reported++ " + __version__ + " Made by " + __author__)
-                Reporter.MessageFrom("Report", "/report Name")
-                Reporter.MessageFrom("Report", "/report list")
-                Reporter.MessageFrom("Report", "/report delete")
-                Reporter.MessageFrom("Report", "/report deleteall")
+                Reporter.MessageFrom("Report", '/report "Name" "Reason" - Quote signs (") are required.')
+                if Reporter.Admin or self.isMod(Reporter.SteamID):
+                    Reporter.MessageFrom("Report", "/report list - List Reports")
+                    Reporter.MessageFrom("Report", "/report view - View report.")
+                    Reporter.MessageFrom("Report", "/report delete - Mark and Delete report.")
+                    Reporter.MessageFrom("Report", "/report deleteall - Delete all")
             else:
                 if args[0] == "help":
                     Reporter.MessageFrom("Report", green + "Get420Reported++ " + __version__ + " Made by " + __author__)
-                    Reporter.MessageFrom("Report", "/report Name")
-                    Reporter.MessageFrom("Report", "/report list")
-                    Reporter.MessageFrom("Report", "/report delete")
-                    Reporter.MessageFrom("Report", "/report deleteall")
+                    Reporter.MessageFrom("Report", '/report "Name" "Reason" - Quote signs (") are required.')
+                    if Reporter.Admin or self.isMod(Reporter.SteamID):
+                        Reporter.MessageFrom("Report", "/report list - List Reports")
+                        Reporter.MessageFrom("Report", "/report view - View report.")
+                        Reporter.MessageFrom("Report", "/report delete - Mark and Delete report.")
+                        Reporter.MessageFrom("Report", "/report deleteall - Delete all")
                 elif args[0] == "list":
                     if not Reporter.Admin and not self.isMod(Reporter.SteamID):
                         return
                     Reporter.MessageFrom("Report", green + "There are (" + teal + str(length) + green + ") reports atm.")
                     for key in enum:
-                        Reporter.MessageFrom("Report", "ID - " + key)
+                        Reporter.MessageFrom("Report", "Ticket: " + key)
                 elif args[0] == "view":
                     if not Reporter.Admin and not self.isMod(Reporter.SteamID):
                         return
@@ -133,7 +151,7 @@ class Report:
                         Reporter.MessageFrom("Report", red + "This report doesn't exist!")
                         return
                     Reason = ini.GetSetting("Reports", id)
-                    Reporter.MessageFrom("Report", red + "You are viewing: " + id)
+                    Reporter.MessageFrom("Report", red + "You are viewing Ticket ID: " + id)
                     Reporter.MessageFrom("Report", green + "Case: " + teal + Reason)
                 elif args[0] == "delete":
                     if not Reporter.Admin and not self.isMod(Reporter.SteamID):
@@ -156,34 +174,28 @@ class Report:
                     Reporter.MessageFrom("Report", red + "All cases deleted.")
                     ini.Save()
                 else:
-                    Reported = self.CheckV(Reporter, args)
+                    if len(args) <= 1:
+                        Reporter.MessageFrom('Report', 'Usage: /report "PlayerName" "message"')
+                        Reporter.MessageFrom('Report', 'Quote signs (") are required.')
+                        return
+                    array = self.GetQuoted(args, Reporter)
+                    if not array:
+                        return
+                    Reported = self.CheckV(Reporter, array[0])
                     if Reported is None:
                         return
-                    if DataStore.ContainsKey("Report", Reporter.SteamID):
-                        Reporter.MessageFrom("Report", red + "Write the reason in the chat without the command.")
-                        return
-                    Reporter.MessageFrom("Report", red + "Write the reason in the chat.")
-                    # Tábla, Kulcs, Érték
-                    # Tábla, Reportoló játékos id, Reportolt játékos id-t
-                    DataStore.Add("Report", Reporter.SteamID, Reported.SteamID)
-                    DataStore.Add("Report", Reporter.SteamID + "name", Reported.Name)
+                    self.HandleReport(Reporter, Reported, array[1])
 
-    def On_Chat(self, Reporter, ChatMessage):
-        if DataStore.ContainsKey("Report", Reporter.SteamID):
-            message = ChatMessage.ToString()
-            ChatMessage.NewText = ""
-            if len(message) > 47:
-                Reporter.MessageFrom("Report", red + "Too long reason. Write It shorter.")
-                return
-            SteamID = DataStore.Get("Report", Reporter.SteamID)
-            Name = DataStore.Get("Report", Reporter.SteamID + "name")
-            #Keresett Jatekos
-            for player in Server.Players:
-                if player.Admin or self.isMod(player.SteamID):
-                    player.MessageFrom("Report", red + "New report submitted!")
-                    player.MessageFrom("Report", red + "Check it with the /report view command.")
-            DataStore.Remove("Report", Reporter.SteamID)
-            Plugin.Log("ReportLogs", "Reporter: " + Reporter.Name + " | " + Reporter.SteamID + " | Reported: " + Name +
-                       " | " + SteamID + " |  Reason: " + message)
-            self.SaveReportToIni(Reporter, Name, message)
-            Reporter.MessageFrom("Report", red + "Report submitted.")
+    def HandleReport(self, Reporter, Reported, Message):
+        if len(Message) > 47:
+            Reporter.MessageFrom("Report", red + "Too long reason. Write It shorter.")
+            return
+        #Keresett Jatekos
+        for player in Server.Players:
+            if player.Admin or self.isMod(player.SteamID):
+                player.MessageFrom("Report", red + "New report submitted!")
+                player.MessageFrom("Report", red + "Check it with the /report view command.")
+        Plugin.Log("ReportLogs", "Reporter: " + Reporter.Name + " | " + Reporter.SteamID + " | Reported: " + Reported.Name +
+            " | " + Reported.SteamID + " |  Reason: " + Message)
+        self.SaveReportToIni(Reporter, Reported.Name, Message)
+        Reporter.MessageFrom("Report", red + "Report submitted.")
